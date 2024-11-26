@@ -1,0 +1,56 @@
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST:localhost}
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+
+server:
+  gateway: ${GATEWAY_URL:http://localhost:8080}
+  port: 8040
+spring:
+  application:
+    name: mails
+  config:
+    import: optional:configserver:http://localhost:8888
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: admin
+    password: admin
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-attempts: 3
+          max-interval: 10s
+          multiplier: 1
+    dead-letter:
+      exchange: dead-letter-exchange
+      queue: mail-dead-letter-queue
+      key: mail.dead-letter
+    mail:
+      queue: user-registration-mail-queue
+    user:
+      exchange: user-exchange
+      register:
+        key: user.registration.mail
+
+
+
+company:
+  email:
+    no-reply: no-reply@ace.com

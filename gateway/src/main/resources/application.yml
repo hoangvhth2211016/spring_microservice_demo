@@ -1,0 +1,96 @@
+
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST:localhost}
+    preferIpAddress: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateways
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: users
+          uri: ${USERS_URL:http://localhost:8081}
+          predicates:
+            - Path=/users/**
+        - id: auth
+          uri: ${USERS_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/**
+        - id: reservations
+          uri: ${RESERVATIONS_URL:http://localhost:8082}
+          predicates:
+            - Path=/reservations/**
+        - id: orders
+          uri: ${ORDERS_URL:http://localhost:8083}
+          predicates:
+            - Path=/orders/**
+        - id: payments
+          uri: ${PAYMENTS_URL:http://localhost:8084}
+          predicates:
+            - Path=/payments/**
+        - id: movies
+          uri: ${MOVIES_URL:http://localhost:8085}
+          predicates:
+            - Path=/movies/**
+        - id: screens
+          uri: ${SCREENS_URL:http://localhost:8086}
+          predicates:
+            - Path=/screens/**
+        - id: showtimes
+          uri: ${SHOWTIMES_URL:http://localhost:8087}
+          predicates:
+            - Path=/showtimes/**
+        - id: showtime_seats
+          uri: ${SHOWTIME_SEATS_URL:http://localhost:8088}
+          predicates:
+            - Path=/showtime_seats/**
+  config:
+    import: optional:configserver:http://localhost:8888
+
+springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    disable-swagger-default-url: true
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - name: Api Gateway Service
+        url: /v3/api-docs
+      - name: Product Service
+        url: /products/v3/api-docs
+      - name: User Service
+        url: /users/v3/api-docs
+
+
+security:
+  jwt:
+    token:
+      secret-key: sQLOufSUuiIpxT3Rh772VaABdyj85UBUUG12f-V12ifa-wQlj2XssmOYI31-7Isv
+      issuer: ace
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="mail" />
+        <module name="movie" />
+        <module name="discovery" />
+        <module name="showtime" />
+        <module name="screen" />
+        <module name="reservation" />
+        <module name="payment" />
+        <module name="user" />
+        <module name="gateway" />
+        <module name="order" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.32/17d46b3e205515e1e8efd3ee4d57ce8018914163/lombok-1.18.32.jar" />
+        </processorPath>
+        <module name="screen.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="cart" target="21" />
+      <module name="config-server" target="21" />
+      <module name="inventory" target="21" />
+      <module name="product" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cart" options="-parameters" />
+      <module name="config-server" options="-parameters" />
+      <module name="discovery" options="-parameters" />
+      <module name="gateway" options="-parameters" />
+      <module name="inventory" options="-parameters" />
+      <module name="mail" options="-parameters" />
+      <module name="movie" options="-parameters" />
+      <module name="order" options="-parameters" />
+      <module name="payment" options="-parameters" />
+      <module name="product" options="-parameters" />
+      <module name="reservation" options="-parameters" />
+      <module name="screen" options="-parameters" />
+      <module name="showtime" options="-parameters" />
+      <module name="user" options="-parameters" />
+    </option>
+  </component>
+</project>

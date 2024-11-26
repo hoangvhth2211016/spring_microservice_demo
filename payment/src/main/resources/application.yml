@@ -1,0 +1,64 @@
+eureka:
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+
+server:
+  gateway: ${GATEWAY_URL:http://localhost:8080}
+  servlet:
+    context-path: /
+  port: 8060
+spring:
+  application:
+    name: payments
+  config:
+    import: optional:configserver:http://localhost:8888
+  datasource:
+    drive-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/movie_theater}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      timeout: 600
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-attempts: 3
+          max-interval: 10s
+          multiplier: 1
+
+stripe:
+  api-key: sk_test_51PCICTDFODxhL5UQRkwOSyH7KARdvyvDTaYLSFSSQJ1gyVVKHWDGxfqsUBLfcTmCS7wVRew5oF9XVt4JdEEtUh4r00HYFQKwHx
+  expiration-in-minutes: 30
+  currency: usd
+
+frontend:
+  url: http://localhost:4200
+
+payment:
+  check:
+    is-running: false
+  task:
+    key: task_list

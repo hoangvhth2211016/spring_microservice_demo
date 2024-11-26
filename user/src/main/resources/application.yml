@@ -1,0 +1,68 @@
+eureka:
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+
+server:
+  servlet:
+    context-path: /
+  port: 8010
+spring:
+  application:
+    name: users
+  config:
+    import: optional:configserver:http://localhost:8888
+  datasource:
+    drive-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/movie_theater}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-attempts: 3
+          max-interval: 10s
+          multiplier: 2
+    dead-letter:
+      exchange: dead-letter-exchange
+      queue: mail-dead-letter-queue
+      key: mail.dead-letter
+    mail:
+      queue: user-registration-mail-queue
+    user:
+      exchange: user-exchange
+      register:
+        key: user.registration.mail
+
+openapi:
+  service:
+    title: User Service Docs
+    version: 1.0.0
+    url: http://localhost:8080 #api gateway url
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /users/swagger-ui.html
+  api-docs:
+    path: /users/v3/api-docs
+
+
+security:
+  jwt:
+    token:
+      secret-key: sQLOufSUuiIpxT3Rh772VaABdyj85UBUUG12f-V12ifa-wQlj2XssmOYI31-7Isv
+      issuer: ace

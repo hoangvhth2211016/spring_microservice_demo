@@ -1,0 +1,253 @@
+services:
+
+  postgres:
+    container_name: postgres_ms
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    ports:
+      - "5432:5432"
+
+  redis:
+    container_name: redis_ms
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    container_name: rabbitmq_ms
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+  # movie service
+  movies:
+    container_name: movies
+    build:
+      context: ./movie
+      dockerfile: Dockerfile
+    volumes:
+      - ./movie/src/:/app/src/
+      - ./movie/pom.xml:/app/pom.xml
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - 8090:8090
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_theater
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      REDIS_HOST: redis
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      GATEWAY_URL: http://gateway:8080
+
+  # screen service
+  screens:
+    container_name: screens
+    build:
+      context: ./screen
+      dockerfile: Dockerfile
+    volumes:
+      - ./screen/src/:/app/src/
+      - ./screen/pom.xml:/app/pom.xml
+    depends_on:
+      - postgres
+    ports:
+      - 8100:8100
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_theater
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      GATEWAY_URL: http://gateway:8080
+
+  # showtime service
+  showtimes:
+    container_name: showtimes
+    build:
+      context: ./showtime
+      dockerfile: Dockerfile
+    volumes:
+      - ./showtime/src/:/app/src/
+      - ./showtime/pom.xml:/app/pom.xml
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - 8110:8110
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_theater
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      GATEWAY_URL: http://gateway:8080
+
+  # user service
+  users:
+    container_name: users
+    build:
+      context: ./user
+      dockerfile: Dockerfile
+    volumes:
+      - ./user/src/:/app/src/
+      - ./user/pom.xml:/app/pom.xml
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - 8010:8010
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_theater
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+
+  # order service
+  orders:
+    container_name: orders
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    volumes:
+      - ./order/src/:/app/src/
+      - ./order/pom.xml:/app/pom.xml
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - 8050:8050
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_theater
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      GATEWAY_URL: http://gateway:8080
+
+  # payment service
+  payments:
+    container_name: payments
+    build:
+      context: ./payment
+      dockerfile: Dockerfile
+    volumes:
+      - ./payment/src/:/app/src/
+      - ./payment/pom.xml:/app/pom.xml
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    ports:
+      - 8060:8060
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/movie_theater
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      REDIS_HOST: redis
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      GATEWAY_URL: http://gateway:8080
+
+
+  # reservation service
+  reservations:
+    container_name: reservations
+    build:
+      context: ./reservation
+      dockerfile: Dockerfile
+    volumes:
+      - ./reservation/src/:/app/src/
+      - ./reservation/pom.xml:/app/pom.xml
+    depends_on:
+      - redis
+      - rabbitmq
+    ports:
+      - 8030:8030
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      REDIS_HOST: redis
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+
+  # mail service
+  mails:
+    container_name: mails
+    build:
+      context: ./mail
+      dockerfile: Dockerfile
+    volumes:
+      - ./mail/src/:/app/src/
+      - ./mail/pom.xml:/app/pom.xml
+    depends_on:
+      - rabbitmq
+      - maildev
+    ports:
+      - 8040:8040
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      GATEWAY_URL: http://gateway:8080
+      MAIL_HOST: maildev
+      MAIL_PORT: 1025
+
+  # discovery service
+  discovery:
+    container_name: discoveries
+    build:
+      context: ./discovery
+      dockerfile: Dockerfile
+    volumes:
+      - ./discovery/src/:/app/src/
+      - ./discovery/pom.xml:/app/pom.xml
+    ports:
+      - 8761:8761
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+
+  # gateway service
+  gateways:
+    container_name: gateways
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    volumes:
+      - ./gateway/src/:/app/src/
+      - ./gateway/pom.xml:/app/pom.xml
+    depends_on:
+      - discovery
+    ports:
+      - 8080:8080
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_DEFAULT_ZONE: http://discovery:8761/eureka
+      MOVIES_URL: http://movies:8090
+      SCREENS_URL: http://screens:8100
+      SHOWTIMES_URL: http://showtimes:8110
+      USERS_URL: http://users:8010
+      ORDERS_URL: http://orders:8050
+      PAYMENTS_URL: http://payments:8060
+      RESERVATIONS_URL: http://reservations:8030
+      MAILS_URL: http://mails:8040
+

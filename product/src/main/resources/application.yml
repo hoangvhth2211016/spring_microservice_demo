@@ -1,0 +1,50 @@
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+server:
+  gateway: http://localhost:8080
+  servlet:
+    context-path: /
+  port: 8020
+spring:
+  application:
+    name: products
+  config:
+    import: optional:configserver:http://localhost:8888
+  datasource:
+    drive-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/ace
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+openapi:
+  service:
+    title: Product Service Docs
+    version: 1.0.0
+    url: http://localhost:8080 #api gateway url
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /products/swagger-ui.html
+  api-docs:
+    path: /products/v3/api-docs
+
+security:
+  jwt:
+    token:
+      secret-key: sQLOufSUuiIpxT3Rh772VaABdyj85UBUUG12f-V12ifa-wQlj2XssmOYI31-7Isv
+      issuer: ace
